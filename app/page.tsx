@@ -149,12 +149,12 @@ export default function EMTSimulator() {
   // MESSAGE UTILITIES
   // ───────────────────────────────────────────────────────────────────────
 
-  const addMessage = (text, type = MessageType.SYSTEM, delay = 300) => {
-    return new Promise(resolve => {
-      setTimeout(() => {
-        setMessages(prev => [...prev, { text, type, id: Date.now() + Math.random() }]);
-        resolve();
-      }, delay);
+  const addMessage = (text: string, type: string = MessageType.SYSTEM, delay: number = 300) => {
+  return new Promise<void>(resolve => { // Add <void> to Promise for best practice
+    setTimeout(() => {
+      setMessages(prev => [...prev, { text, type, id: Date.now() + Math.random() }]);
+      resolve();
+    }, delay);
     });
   };
 
