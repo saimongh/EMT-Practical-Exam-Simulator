@@ -138,7 +138,7 @@ export default function EMTSimulator() {
   const [inputPrompt, setInputPrompt] = useState('');
   const [simulationComplete, setSimulationComplete] = useState(false);
   
-  const messagesEndRef = useRef(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll to bottom
   useEffect(() => {
