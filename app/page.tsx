@@ -130,7 +130,7 @@ function patientReducer(state: PatientState, action: PatientAction): PatientStat
 
 export default function EMTSimulator() {
   const [patient, dispatchPatient] = useReducer(patientReducer, initialPatientState);
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [currentStep, setCurrentStep] = useState('welcome');
   const [awaitingInput, setAwaitingInput] = useState(false);
   const [awaitingContinue, setAwaitingContinue] = useState(false);
