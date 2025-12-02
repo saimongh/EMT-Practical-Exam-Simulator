@@ -1,4 +1,4 @@
-# ⚕️ EMT Primary Assessment Simulator
+[# ⚕️ EMT Primary Assessment Simulator
 
 ## 🚀 Project Overview
 
@@ -67,4 +67,4 @@ This project is under continuous development. The following sections are current
     ```bash
     npm run dev  # (or npm start, depending on your setup)
     ```
-5.  Open your browser to `http://localhost:3000` (or the port indicated in your terminal).
+5.  Open your browser to `http://localhost:3000` (or the port indicated in your terminal).](https://emt-practical-exam-simulator.vercel.app)
