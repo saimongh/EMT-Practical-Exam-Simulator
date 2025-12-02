@@ -41,11 +41,45 @@ const MessageType = {
   INPUT: 'input'
 };
 
+// ---------------------------------------------------------------------------
+// 🚨 FIX: DEFINING TYPES FOR REDUCER TO SATISFY TYPESCRIPT BUILD 🚨
+// ---------------------------------------------------------------------------
+
+// Define the structure of the patient state object
+interface PatientState {
+  age: number;
+  sex: string;
+  callType: string | null;
+  traumaType: string | null;
+  gswLocation: string | null;
+  avpuStatus: string | null;
+  airwayPatent: boolean;
+  isBreathingAdequate: boolean;
+  hasPulse: boolean;
+  isInShock: boolean;
+  interventions: string[];
+  treatmentsApplied: string[];
+}
+
+// Define the structure of the actions that can be dispatched
+type PatientAction = 
+  | { type: 'SET_CALL_TYPE'; payload: string }
+  | { type: 'SET_TRAUMA_TYPE'; payload: string }
+  | { type: 'SET_GSW_LOCATION'; payload: string }
+  | { type: 'SET_AVPU'; payload: string }
+  | { type: 'SET_PULSE'; payload: boolean }
+  | { type: 'SET_AIRWAY'; payload: boolean }
+  | { type: 'SET_BREATHING'; payload: boolean }
+  | { type: 'SET_SHOCK'; payload: boolean }
+  | { type: 'ADD_INTERVENTION'; payload: string }
+  | { type: 'ADD_TREATMENT'; payload: string }
+  | { type: 'RESET' };
+
 // ═══════════════════════════════════════════════════════════════════════════
 // PATIENT STATE & REDUCER
 // ═══════════════════════════════════════════════════════════════════════════
 
-const initialPatientState = {
+const initialPatientState: PatientState = {
   age: 25,
   sex: 'MALE',
   callType: null,
@@ -60,7 +94,8 @@ const initialPatientState = {
   treatmentsApplied: []
 };
 
-function patientReducer(state, action) {
+// Apply the defined types here
+function patientReducer(state: PatientState, action: PatientAction): PatientState {
   switch (action.type) {
     case 'SET_CALL_TYPE':
       return { ...state, callType: action.payload };
@@ -227,11 +262,12 @@ export default function EMTSimulator() {
     const needsAirway = await step4AVPU();
     if (needsAirway) await step5AirwayManagement();
     await step6OxygenBreathing();
+    // 🚨 FIX: CAPTURE the shock status returned from step 7
     const shockDetected = await step7CirculationShock();
+    // 🚨 FIX: PASS the status directly to step 8
     await step8TransportDecision(shockDetected);
     await step9RapidTrauma();
     await step10Reassessment();
-    // FIX APPLIED: Pass the current, final state to the summary function
     await displayFinalSummary(patient);
   };
 
@@ -414,9 +450,10 @@ export default function EMTSimulator() {
             await waitForContinue();
 
         } else {
-            // 3. Intervention Loop
+            // Intervention Loop
             await addCritical('BREATHING INADEQUATE OR ABSENT');
             await addEMT("'I READJUST OPA/NPA.'");
+            dispatchPatient({ type: 'ADD_INTERVENTION', payload: 'Airway adjunct readjusted' });
             await addSystem('Re-assessing breathing status after intervention.');
             await waitForContinue();
             // Loop continues to re-run the `getUserInput('Is breathing present and adequate?...'` check
@@ -429,14 +466,14 @@ const step7CirculationShock = async () => {
   await addEMT("'I CHECK CAROTID PULSE QUALITY, SKIN SIGNS, AND COMPARE RADIAL PULSES.'");
   await waitForContinue();
   
-  // 1. Mandatory Assessments (User Input)
+  // 1. Mandatory Assessments (User Input) - Always check pulse and skin first
   const pulse = await getUserInput('Carotid pulse quality is', ['RAPID/WEAK', 'NORMAL']);
   const skin = await getUserInput('Skin status is', ['WARM/DRY', 'PALE/COOL/DIAPHORETIC', 'TOO COLD OR HOT OUTSIDE TO TELL']);
   
   let isShock = false;
   let eyelidColor = 'PINK'; // Default to normal
   
-  // 2. Conditional Assessment (Conjunctiva Check)
+  // 2. Conditional Assessment (Conjunctiva Check) - Only if skin is unreliable
   if (skin === 'TOO COLD OR HOT OUTSIDE TO TELL') {
     await addSystem('Skin assessment unreliable due to environmental factors.');
     await addEMT("'CHECKING CONJUNCTIVA (UNDER EYELIDS) FOR PERFUSION STATUS.'");
@@ -469,13 +506,13 @@ const step7CirculationShock = async () => {
     await waitForContinue();
   }
 
-  return isShock; // <-- CRITICAL CHANGE: Return the diagnosis!
+  return isShock; // <-- CRITICAL FIX: Return the diagnosis!
 };
  
-const step8TransportDecision = async (shockDetected) => {
+const step8TransportDecision = async (shockDetected: boolean) => {
   await addHeader('STEP 8: TRANSPORT DECISION & COMMUNICATION');
 
-  // CRITICAL CHANGE: Use the passed 'shockDetected' boolean instead of patient.isInShock
+  // CRITICAL FIX: Use the passed 'shockDetected' boolean to avoid stale state
   if (shockDetected) {
     await addCritical('INITIATING SHOCK PROTOCOL');
     await addEMT("'PREPARE FOR RAPID TRANSPORT - THIS IS A LOAD-AND-GO.'");
@@ -523,15 +560,17 @@ const step8TransportDecision = async (shockDetected) => {
     await addEMT("PALPATE ABDOMEN FOR TENDERNESS, RIGIDITY, OR DISTENTION...");
     await waitForContinue();
     await addEMT("PELVIS FOR STABILITY (GENTLE AND SIMULTANEOUS DOWNWARD AND INWARD PRESSURE...");
+    
     const pelvis = await getUserInput('Is the pelvis stable?', ['YES', 'NO']);
     if (pelvis === 'YES') {
       // If stable, proceed with genitalia check
       await addEMT("GENITALIA FOR BLEEDING..."); 
-  } else {
+    } else {
       // If unstable, skip the check and add intervention
       await addCritical('PELVIS UNSTABLE. MINIMIZING MOVEMENT.');
       dispatchPatient({ type: 'ADD_INTERVENTION', payload: 'Pelvic stabilization initiated (if required)' });
-  }
+    }
+    
     await addEMT("LEGS FOR SYMMETRY ...'");
     await waitForContinue();
     
@@ -549,7 +588,6 @@ const step8TransportDecision = async (shockDetected) => {
           // Non-life-threatening injury (e.g., minor laceration)
           await addSystem('Non-life-threatening injury found. Will dress en route.');
           await waitForContinue();
-          // Move on to log rolling/transport preparation.
       }
   }
     
@@ -580,7 +618,7 @@ const step8TransportDecision = async (shockDetected) => {
   };
 
   // FIX APPLIED: Accept the final patient state as an argument to avoid stale closure
-  const displayFinalSummary = async (finalPatientState) => {
+  const displayFinalSummary = async (finalPatientState: PatientState) => {
     await addHeader('SIMULATION COMPLETE - PATIENT SUMMARY');
     await addMessage('Patient Status:', MessageType.SYSTEM, 200);
     await addDim(`  Age/Sex: ${finalPatientState.age}yo ${finalPatientState.sex}`);
@@ -625,7 +663,7 @@ const step8TransportDecision = async (shockDetected) => {
   // RENDER
   // ───────────────────────────────────────────────────────────────────────
 
-  const getMessageStyle = (type) => {
+  const getMessageStyle = (type: string) => {
     switch (type) {
       case MessageType.SYSTEM:
         return 'text-cyan-400';
