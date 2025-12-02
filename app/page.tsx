@@ -42,10 +42,10 @@ const MessageType = {
 };
 
 // ---------------------------------------------------------------------------
-// 🚨 FIX: DEFINING TYPES FOR REDUCER TO SATISFY TYPESCRIPT BUILD 🚨
+// 🚨 FIX: DEFINING ALL TYPES FOR TYPESCRIPT BUILD SUCCESS 🚨
 // ---------------------------------------------------------------------------
 
-// Define the structure of the patient state object
+// 1. Define the structure of the patient state object
 interface PatientState {
   age: number;
   sex: string;
@@ -61,7 +61,7 @@ interface PatientState {
   treatmentsApplied: string[];
 }
 
-// Define the structure of the actions that can be dispatched
+// 2. Define the structure of the actions that can be dispatched
 type PatientAction = 
   | { type: 'SET_CALL_TYPE'; payload: string }
   | { type: 'SET_TRAUMA_TYPE'; payload: string }
@@ -74,6 +74,13 @@ type PatientAction =
   | { type: 'ADD_INTERVENTION'; payload: string }
   | { type: 'ADD_TREATMENT'; payload: string }
   | { type: 'RESET' };
+
+// 3. Define the structure of the messages array (to fix the final useState error)
+interface Message {
+  text: string;
+  type: string;
+  id: number;
+}
 
 // ═══════════════════════════════════════════════════════════════════════════
 // PATIENT STATE & REDUCER
@@ -94,7 +101,6 @@ const initialPatientState: PatientState = {
   treatmentsApplied: []
 };
 
-// Apply the defined types here
 function patientReducer(state: PatientState, action: PatientAction): PatientState {
   switch (action.type) {
     case 'SET_CALL_TYPE':
@@ -120,6 +126,7 @@ function patientReducer(state: PatientState, action: PatientAction): PatientStat
     case 'RESET':
       return initialPatientState;
     default:
+      // You should handle unreachable action types here, but for now, return state
       return state;
   }
 }
@@ -130,15 +137,15 @@ function patientReducer(state: PatientState, action: PatientAction): PatientStat
 
 export default function EMTSimulator() {
   const [patient, dispatchPatient] = useReducer(patientReducer, initialPatientState);
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>([]); // FIX: Use Message[] type
   const [currentStep, setCurrentStep] = useState('welcome');
   const [awaitingInput, setAwaitingInput] = useState(false);
   const [awaitingContinue, setAwaitingContinue] = useState(false);
-  const [validOptions, setValidOptions] = useState([]);
+  const [validOptions, setValidOptions] = useState<string[]>([]); // Added string[] type
   const [inputPrompt, setInputPrompt] = useState('');
   const [simulationComplete, setSimulationComplete] = useState(false);
   
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null); // FIX: Explicitly typed useRef
 
   // Auto-scroll to bottom
   useEffect(() => {
@@ -146,41 +153,41 @@ export default function EMTSimulator() {
   }, [messages]);
 
   // ───────────────────────────────────────────────────────────────────────
-  // MESSAGE UTILITIES
+  // MESSAGE UTILITIES (FIX: Explicitly typed parameters)
   // ───────────────────────────────────────────────────────────────────────
 
-  const addMessage = (text: string, type: string = MessageType.SYSTEM, delay: number = 300) => {
-  return new Promise<void>(resolve => { // Add <void> to Promise for best practice
-    setTimeout(() => {
-      setMessages(prev => [...prev, { text, type, id: Date.now() + Math.random() }]);
-      resolve();
-    }, delay);
+  const addMessage = (text: string, type: string = MessageType.SYSTEM, delay: number = 300): Promise<void> => {
+    return new Promise(resolve => {
+      setTimeout(() => {
+        setMessages(prev => [...prev, { text, type, id: Date.now() + Math.random() }]);
+        resolve();
+      }, delay);
     });
   };
 
-  const addHeader = (text) => addMessage(text, MessageType.HEADER, 400);
-  const addSystem = (text) => addMessage(`⚕ SYSTEM: ${text}`, MessageType.SYSTEM, 200);
-  const addEMT = (text) => addMessage(`➤ EMT: ${text}`, MessageType.EMT, 200);
-  const addCritical = (text) => addMessage(`⚠ CRITICAL: ${text}`, MessageType.CRITICAL, 200);
-  const addDim = (text) => addMessage(text, MessageType.DIM, 100);
+  const addHeader = (text: string) => addMessage(text, MessageType.HEADER, 400);
+  const addSystem = (text: string) => addMessage(`⚕ SYSTEM: ${text}`, MessageType.SYSTEM, 200);
+  const addEMT = (text: string) => addMessage(`➤ EMT: ${text}`, MessageType.EMT, 200);
+  const addCritical = (text: string) => addMessage(`⚠ CRITICAL: ${text}`, MessageType.CRITICAL, 200);
+  const addDim = (text: string) => addMessage(text, MessageType.DIM, 100);
 
-  const getUserInput = (prompt, options) => {
+  const getUserInput = (prompt: string, options: string[]): Promise<string> => {
     return new Promise(resolve => {
       setInputPrompt(prompt);
       setValidOptions(options);
       setAwaitingInput(true);
       
-      const handleInput = (value) => {
+      const handleInput = (value: string) => {
         setAwaitingInput(false);
         addMessage(`> ${value}`, MessageType.INPUT, 0);
         resolve(value);
       };
       
-      window.handleSimInput = handleInput;
+      (window as any).handleSimInput = handleInput;
     });
   };
 
-  const waitForContinue = () => {
+  const waitForContinue = (): Promise<void> => {
     return new Promise(resolve => {
       setAwaitingContinue(true);
       
@@ -189,19 +196,19 @@ export default function EMTSimulator() {
         resolve();
       };
       
-      window.handleSimContinue = handleContinue;
+      (window as any).handleSimContinue = handleContinue;
     });
   };
 
-  const handleOptionClick = (option) => {
-    if (awaitingInput && window.handleSimInput) {
-      window.handleSimInput(option);
+  const handleOptionClick = (option: string) => {
+    if (awaitingInput && (window as any).handleSimInput) {
+      (window as any).handleSimInput(option);
     }
   };
 
   const handleContinueClick = () => {
-    if (awaitingContinue && window.handleSimContinue) {
-      window.handleSimContinue();
+    if (awaitingContinue && (window as any).handleSimContinue) {
+      (window as any).handleSimContinue();
     }
   };
 
@@ -262,9 +269,9 @@ export default function EMTSimulator() {
     const needsAirway = await step4AVPU();
     if (needsAirway) await step5AirwayManagement();
     await step6OxygenBreathing();
-    // 🚨 FIX: CAPTURE the shock status returned from step 7
+    // FIX: CAPTURE the shock status returned from step 7
     const shockDetected = await step7CirculationShock();
-    // 🚨 FIX: PASS the status directly to step 8
+    // FIX: PASS the status directly to step 8
     await step8TransportDecision(shockDetected);
     await step9RapidTrauma();
     await step10Reassessment();
@@ -506,7 +513,7 @@ const step7CirculationShock = async () => {
     await waitForContinue();
   }
 
-  return isShock; // <-- CRITICAL FIX: Return the diagnosis!
+  return isShock; // CRITICAL FIX: Return the diagnosis to Step 8
 };
  
 const step8TransportDecision = async (shockDetected: boolean) => {
@@ -589,7 +596,7 @@ const step8TransportDecision = async (shockDetected: boolean) => {
           await addSystem('Non-life-threatening injury found. Will dress en route.');
           await waitForContinue();
       }
-  }
+    }
     
     await addEMT("CHECK PEDAL PULSES AND SENSATION IN BOTH LEGS...'");
     await waitForContinue();
@@ -617,7 +624,6 @@ const step8TransportDecision = async (shockDetected: boolean) => {
     await waitForContinue();
   };
 
-  // FIX APPLIED: Accept the final patient state as an argument to avoid stale closure
   const displayFinalSummary = async (finalPatientState: PatientState) => {
     await addHeader('SIMULATION COMPLETE - PATIENT SUMMARY');
     await addMessage('Patient Status:', MessageType.SYSTEM, 200);
