@@ -1,4 +1,10 @@
-[# ⚕️ EMT Primary Assessment Simulator
+# ⚕️ EMT Primary Assessment Simulator
+
+## 🔗 Try Live Demo!
+
+**Experience the simulation immediately:** [https://emt-practical-exam-simulator.vercel.app/](https://emt-practical-exam-simulator.vercel.app/)
+
+---
 
 ## 🚀 Project Overview
 
@@ -53,11 +59,11 @@ This project is under continuous development. The following sections are current
 
 1.  Clone the repository:
     ```bash
-    git clone [https://github.com/saimongh/EMT-Simulator.git](https://github.com/saimongh/EMT-Simulator.git)
+    git clone [https://github.com/saimongh/EMT-Practical-Exam-Simulator.git](https://github.com/saimongh/EMT-Practical-Exam-Simulator.git)
     ```
 2.  Navigate to the project directory:
     ```bash
-    cd EMT-Simulator
+    cd EMT-Practical-Exam-Simulator
     ```
 3.  Install dependencies:
     ```bash
@@ -65,6 +71,6 @@ This project is under continuous development. The following sections are current
     ```
 4.  Run the local server:
     ```bash
-    npm run dev  # (or npm start, depending on your setup)
+    npm run dev
     ```
-5.  Open your browser to `http://localhost:3000` (or the port indicated in your terminal).](https://emt-practical-exam-simulator.vercel.app)
+5.  Open your browser to `http://localhost:3000` (or the port indicated in your terminal).
