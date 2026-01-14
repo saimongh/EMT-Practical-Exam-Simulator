@@ -96,6 +96,7 @@ export interface Message {
     addMessage: (text: string, type?: string, delay?: number) => Promise<void>;
     addHeader: (text: string) => Promise<void>;
     addSystem: (text: string) => Promise<void>;
+    addTreatment?: (text: string) => Promise<void>;
     addEMT: (text: string) => Promise<void>;
     addCritical: (text: string) => Promise<void>;
     addDim: (text: string) => Promise<void>;
