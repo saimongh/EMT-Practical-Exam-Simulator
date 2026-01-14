@@ -363,7 +363,7 @@ export default function EMTSimulator() {
         return 'text-green-400';
       case MessageType.CRITICAL:
         return 'text-red-400 font-bold';
-      case MessageType.WARNING:
+      case MessageType.SYSTEM: // Change WARNING to SYSTEM
         return 'text-yellow-400';
       case MessageType.HEADER:
         return 'text-blue-400 font-bold text-center text-lg border-t-2 border-b-2 border-blue-400/30 py-2 my-3';
