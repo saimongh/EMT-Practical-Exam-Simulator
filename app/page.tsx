@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useReducer } from 'react';
-import { AlertCircle, Activity, Heart } from 'lucide-react';
+import { AlertCircle, Activity, Heart, Github } from 'lucide-react';
 
 // 1. IMPORT TYPES (Relative Path)
 import { 
@@ -388,7 +388,20 @@ export default function EMTSimulator() {
               <h1 className="text-white font-bold text-lg">EMT PRIMARY ASSESSMENT SIMULATOR</h1>
               <p className="text-gray-400 text-sm">Emergency Medical Services Training</p>
             </div>
-            <Heart className="text-red-400 animate-pulse" size={24} />
+            <div className="flex items-center gap-4">
+              <Heart className="text-red-400 animate-pulse" size={24} />
+              
+              <a 
+                href="https://github.com/saimongh/EMT-Practical-Exam-Simulator/tree/main#readme" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 bg-white/10 hover:bg-white/20 transition-colors px-3 py-1.5 rounded-lg border border-white/10"
+              >
+                {/* using a standard github icon from lucide if you have it, otherwise an img tag */}
+                <Github size={18} className="text-white" /> 
+                <span className="text-white text-sm font-medium">Source Code</span>
+              </a>
+            </div>
           </div>
 
           {/* Messages Container */}
